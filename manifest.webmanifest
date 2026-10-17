@@ -1,0 +1,11 @@
+{
+  "name": "Samax Enterprises Shop",
+  "short_name": "Samax Shop",
+  "description": "Everyday essentials from Samax Enterprises, Kisii Suneka.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#174a35",
+  "icons": []
+}
