@@ -1,0 +1,46 @@
+# Samax Enterprises deployment blueprint.
+# This creates infrastructure only; it does not register the domain or enable M-Pesa.
+# Keep the frontend/API in pre-launch mode until the launch blockers in PRODUCTION_READINESS.md are closed.
+services:
+  - type: web
+    name: samax-enterprises-api
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: samax-enterprises-db
+          property: connectionString
+      - key: FRONTEND_ORIGIN
+        value: https://samaxenterprises.co.ke,https://www.samaxenterprises.co.ke
+      - key: ADMIN_API_TOKEN
+        generateValue: true
+      - key: MPESA_ENABLED
+        value: "false"
+      - key: MPESA_ENV
+        value: sandbox
+
+  - type: web
+    name: samax-enterprises-storefront
+    runtime: static
+    plan: free
+    buildCommand: echo "Publishing Samax PWA storefront"
+    staticPublishPath: ./frontend
+    autoDeploy: false
+    # Add samaxenterprises.co.ke and www.sam... manually after registering and verifying the domain.
+
+databases:
+  - name: samax-enterprises-db
+    databaseName: samax_shop
+    user: samax_app
+    plan: basic-256mb
+    region: singapore
+    ipAllowList: []
