@@ -1,0 +1,132 @@
+docs/admin.html.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samax Enterprises | Admin</title>
+  <style>
+    :root {
+      --green: #174a35;
+      --gold: #d6b04c;
+      --light: #f5f7f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--light);
+      color: #222;
+    }
+
+    header {
+      background: var(--green);
+      color: white;
+      padding: 24px 18px;
+      border-bottom: 4px solid var(--gold);
+    }
+
+    header h1 { margin: 0 0 6px; }
+    header p { margin: 0; }
+
+    main {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+
+    .notice, .panel {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px #0000000c;
+    }
+
+    .notice {
+      border-left: 5px solid var(--gold);
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      border: 1px solid #e2e6e1;
+      padding: 18px;
+      border-radius: 10px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--green);
+      font-size: 26px;
+      margin-top: 8px;
+    }
+
+    button {
+      background: var(--green);
+      color: white;
+      border: 0;
+      padding: 12px 18px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Samax Enterprises</h1>
+    <p>Shop Administration Dashboard</p>
+  </header>
+
+  <main>
+    <section class="notice">
+      <strong>Welcome to your admin dashboard.</strong><br>
+      This is the first visual version of your control panel.
+      It is not yet connected to live products, customer accounts,
+      orders, or M-Pesa payments.
+    </section>
+
+    <section class="panel">
+      <h2>Shop Overview</h2>
+      <div class="stats">
+        <div class="stat">
+          Products
+          <strong>—</strong>
+        </div>
+        <div class="stat">
+          Orders
+          <strong>—</strong>
+        </div>
+        <div class="stat">
+          Payments
+          <strong>—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Management</h2>
+      <p>Product management — coming next</p>
+      <p>Order management — coming next</p>
+      <p>M-Pesa integration — coming next</p>
+    </section>
+  </main>
+
+  <footer>
+    © Samax Enterprises
+  </footer>
+</body>
+</html>
