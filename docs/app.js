@@ -1,4 +1,10 @@
+const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 const sampleProducts = [
   { id: 1, name: "Storage Basket", category: "Household", price: 450, description: "Everyday home storage." },
   { id: 2, name: "Kitchen Utensil Set", category: "Kitchenware", price: 850, description: "Useful kitchen essentials." },
