@@ -14,7 +14,7 @@ const sampleProducts = [
   { id: 6, name: "Food Storage Containers", category: "Kitchenware", price: 500, description: "Store kitchen ingredients neatly." }
 ];
 
-let products = [...sampleProducts];
+let products = [];
 let cart = [];
 let activeCategory = "All";
 
