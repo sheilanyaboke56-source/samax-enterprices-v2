@@ -25,7 +25,35 @@ const money = (amount) =>
     currency: "KES",
     maximumFractionDigits: 0
   }).format(amount);
+async function loadProductsFromDatabase() {
+  const grid = $("productGrid");
 
+  if (grid) {
+    grid.textContent = "Loading products...";
+  }
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, name, category, price, stock_quantity, image_url, description")
+    .order("name");
+
+  if (error) {
+    console.error("Could not load products:", error.message);
+    if (grid) {
+      grid.textContent =
+        "We couldn't load products right now. Please try again later.";
+    }
+    return;
+  }
+
+  products = (data || []).map((p) => ({
+    ...p,
+    price: Number(p.price),
+    id: p.id
+  }));
+
+  renderProducts();
+}
 function renderProducts() {
   const grid = $("productGrid");
   if (!grid) return;
@@ -224,5 +252,5 @@ $("checkoutForm")?.addEventListener("submit", (event) => {
 
 if ($("year")) $("year").textContent = String(new Date().getFullYear());
 
-renderProducts();
+loadProductsFromDatabase();
 renderCart();
