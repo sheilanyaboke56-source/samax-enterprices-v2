@@ -1,132 +1,160 @@
-docs/admin.html.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Samax Enterprises | Admin</title>
+  <title>Samax Enterprises | Admin Login</title>
   <style>
-    :root {
-      --green: #174a35;
-      --gold: #d6b04c;
-      --light: #f5f7f4;
-    }
-
-    * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: var(--light);
-      color: #222;
+      background: #f8f6ef;
+      color: #18241e;
     }
-
     header {
-      background: var(--green);
+      background: #174a35;
       color: white;
-      padding: 24px 18px;
-      border-bottom: 4px solid var(--gold);
+      padding: 24px;
+      border-bottom: 4px solid #d6b04c;
     }
-
-    header h1 { margin: 0 0 6px; }
-    header p { margin: 0; }
-
     main {
-      max-width: 900px;
-      margin: 28px auto;
-      padding: 0 16px;
-    }
-
-    .notice, .panel {
-      background: white;
+      max-width: 500px;
+      margin: 45px auto;
       padding: 20px;
-      margin-bottom: 20px;
+    }
+    .panel {
+      background: white;
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 2px 10px #0000000c;
+      box-shadow: 0 2px 12px #0001;
     }
-
-    .notice {
-      border-left: 5px solid var(--gold);
-      line-height: 1.6;
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 9px 0 16px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 7px;
     }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-    }
-
-    .stat {
-      border: 1px solid #e2e6e1;
-      padding: 18px;
-      border-radius: 10px;
-    }
-
-    .stat strong {
-      display: block;
-      color: var(--green);
-      font-size: 26px;
-      margin-top: 8px;
-    }
-
     button {
-      background: var(--green);
+      background: #174a35;
       color: white;
+      padding: 13px 20px;
       border: 0;
-      padding: 12px 18px;
       border-radius: 7px;
       cursor: pointer;
     }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-    }
+    #message { margin-top: 15px; }
+    #dashboard { display: none; }
   </style>
 </head>
 <body>
   <header>
     <h1>Samax Enterprises</h1>
-    <p>Shop Administration Dashboard</p>
+    <p>Private Administration Portal</p>
   </header>
 
   <main>
-    <section class="notice">
-      <strong>Welcome to your admin dashboard.</strong><br>
-      This is the first visual version of your control panel.
-      It is not yet connected to live products, customer accounts,
-      orders, or M-Pesa payments.
+    <section class="panel" id="login">
+      <h2>Admin Login</h2>
+      <form id="loginForm">
+        <label>Email address</label>
+        <input id="email" type="email" required>
+
+        <label>Password</label>
+        <input id="password" type="password" required>
+
+        <button type="submit">Sign in</button>
+      </form>
+      <p id="message"></p>
     </section>
 
-    <section class="panel">
-      <h2>Shop Overview</h2>
-      <div class="stats">
-        <div class="stat">
-          Products
-          <strong>—</strong>
-        </div>
-        <div class="stat">
-          Orders
-          <strong>—</strong>
-        </div>
-        <div class="stat">
-          Payments
-          <strong>—</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Management</h2>
-      <p>Product management — coming next</p>
-      <p>Order management — coming next</p>
-      <p>M-Pesa integration — coming next</p>
+    <section class="panel" id="dashboard">
+      <h2>Welcome to your dashboard</h2>
+      <p id="adminEmail"></p>
+      <p>Your admin account is connected.</p>
+      <h3>Management</h3>
+      <p>Product management — next step</p>
+      <p>Order management — next step</p>
+      <button id="logout">Sign out</button>
     </section>
   </main>
 
-  <footer>
-    © Samax Enterprises
-  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://htqzicbmlwwlycvtcfvy.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_m9bc6NYfuinVNfOJ6lq3-w_C_V9Fgi4";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const loginSection = document.getElementById("login");
+    const dashboard = document.getElementById("dashboard");
+    const message = document.getElementById("message");
+
+    async function checkAdmin() {
+      const { data: { user } } =
+        await supabaseClient.auth.getUser();
+
+      if (!user) {
+        loginSection.style.display = "block";
+        dashboard.style.display = "none";
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error || !data || data.role !== "admin") {
+        await supabaseClient.auth.signOut();
+        message.textContent =
+          "This account does not have admin access.";
+        loginSection.style.display = "block";
+        dashboard.style.display = "none";
+        return;
+      }
+
+      loginSection.style.display = "none";
+      dashboard.style.display = "block";
+      document.getElementById("adminEmail").textContent =
+        "Signed in as: " + user.email;
+    }
+
+    document.getElementById("loginForm")
+      .addEventListener("submit", async function(event) {
+        event.preventDefault();
+        message.textContent = "Signing in...";
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const { error } = await supabaseClient.auth
+          .signInWithPassword({ email, password });
+
+        if (error) {
+          message.textContent = error.message;
+          return;
+        }
+
+        await checkAdmin();
+      });
+
+    document.getElementById("logout")
+      .addEventListener("click", async function() {
+        await supabaseClient.auth.signOut();
+        await checkAdmin();
+      });
+
+    checkAdmin();
+  </script>
 </body>
 </html>
