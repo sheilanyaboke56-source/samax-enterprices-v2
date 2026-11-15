@@ -256,50 +256,6 @@ $("checkoutForm")?.addEventListener("submit", async (event) => {
     alert("Order could not be placed: " + error.message);
   }
 });
-  event.preventDefault();
-
-  if (!cart.length) {
-    alert("Your cart is empty. Please add products first.");
-    return;
-  }
-
-  const name = $("customerName")?.value.trim() || "";
-  const phone = $("customerPhone")?.value.trim() || "";
-  const fulfilment = $("fulfilment")?.value || "Delivery";
-  const area = $("deliveryArea")?.value.trim() || "";
-  const payment = $("paymentMethod")?.value || "M-Pesa";
-
-  const lines = cart.map(
-    (item) =>
-      `- ${item.name} x ${item.quantity}: ${money(Number(item.price) * item.quantity)}`
-  );
-
-  const subtotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
-    0
-  );
-
-  const message = [
-    "Hello Samax Enterprises, I would like to place an order:",
-    "",
-    ...lines,
-    "",
-    `Estimated subtotal: ${money(subtotal)}`,
-    `Customer: ${name}`,
-    `Phone: ${phone}`,
-    `Fulfilment: ${fulfilment}`,
-    ...(fulfilment === "Delivery" ? [`Delivery area: ${area}`] : []),
-    `Preferred payment: ${payment}`,
-    "",
-    "Please confirm stock availability, final price and payment instructions."
-  ].join("\n");
-
-  window.open(
-    `https://wa.me/254723752583?text=${encodeURIComponent(message)}`,
-    "_blank",
-    "noopener,noreferrer"
-  );
-});
 
 if ($("year")) $("year").textContent = String(new Date().getFullYear());
 
