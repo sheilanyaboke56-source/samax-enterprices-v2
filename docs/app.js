@@ -204,7 +204,58 @@ $("fulfilment")?.addEventListener("change", (event) => {
   if (label) label.hidden = !isDelivery;
 });
 
-$("checkoutForm")?.addEventListener("submit", (event) => {
+$("checkoutForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!cart.length) {
+    alert("Your cart is empty.");
+    return;
+  }
+
+  const name = $("customerName").value.trim();
+  const phone = $("customerPhone").value.trim();
+  const fulfilment = $("fulfilment").value;
+  const address = $("deliveryArea")?.value.trim() || "";
+  const payment = $("paymentMethod").value;
+
+  if (!name || !phone) {
+    alert("Please enter your name and phone number.");
+    return;
+  }
+
+  if (fulfilment === "Delivery" && !address) {
+    alert("Please enter your delivery area.");
+    return;
+  }
+
+  const items = cart.map(item => ({
+    product_id: String(item.id),
+    quantity: Number(item.quantity)
+  }));
+
+  try {
+    const { data, error } = await supabase.rpc("place_guest_order", {
+      p_customer_name: name,
+      p_customer_phone: phone,
+      p_delivery_method: fulfilment,
+      p_delivery_address: address,
+      p_payment_method: payment,
+      p_items: items
+    });
+
+    if (error) throw error;
+
+    alert("Your order has been placed successfully! Order number: " + data);
+
+    cart = [];
+    renderCart();
+    $("checkoutForm").reset();
+
+  } catch (error) {
+    console.error(error);
+    alert("Order could not be placed: " + error.message);
+  }
+});
   event.preventDefault();
 
   if (!cart.length) {
