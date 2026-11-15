@@ -32,7 +32,7 @@ async function loadProductsFromDatabase() {
     grid.textContent = "Loading products...";
   }
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await supabase
     .from("products")
     .select("id, name, category, price, stock_quantity, image_url, description")
     .order("name");
