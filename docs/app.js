@@ -5,26 +5,22 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
-const sampleProducts = [
-  { id: 1, name: "Storage Basket", category: "Household", price: 450, description: "Everyday home storage." },
-  { id: 2, name: "Kitchen Utensil Set", category: "Kitchenware", price: 850, description: "Useful kitchen essentials." },
-  { id: 3, name: "Dishwashing Liquid", category: "Cleaning Supplies", price: 180, description: "For everyday dish cleaning." },
-  { id: 4, name: "Bathing Soap", category: "Personal Care", price: 120, description: "An everyday personal-care essential." },
-  { id: 5, name: "Laundry Basket", category: "Household", price: 650, description: "Keep laundry organised." },
-  { id: 6, name: "Food Storage Containers", category: "Kitchenware", price: 500, description: "Store kitchen ingredients neatly." }
-];
+
+// 2. APPLICATION STATE
 
 let products = [];
 let cart = [];
-let activeCategory = "All";
 
 const $ = (id) => document.getElementById(id);
+
 const money = (amount) =>
   new Intl.NumberFormat("en-KE", {
     style: "currency",
-    currency: "KES",
-    maximumFractionDigits: 0
-  }).format(amount);
+    currency: "KES"
+  }).format(Number(amount) || 0);
+
+// 3. LOAD PRODUCTS FROM SUPABASE
+
 async function loadProductsFromDatabase() {
   const grid = $("productGrid");
 
@@ -32,194 +28,299 @@ async function loadProductsFromDatabase() {
     grid.textContent = "Loading products...";
   }
 
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, name, category, price, stock_quantity, image_url, description")
-    .order("name");
+  try {
+    const { data, error } = await supabaseClient
+      .from("products")
+      .select(
+        "id, name, category, price, stock_quantity, image_url, description"
+      )
+      .order("name");
 
-  if (error) {
-    console.error("Could not load products:", error.message);
+    if (error) throw error;
+
+    products = data || [];
+
+    renderProducts();
+  } catch (error) {
+    console.error("Product loading error:", error);
+
     if (grid) {
       grid.textContent =
-        "We couldn't load products right now. Please try again later.";
+        "Unable to load products. Please refresh and try again.";
     }
+  }
+}
+
+// 4. DISPLAY PRODUCTS
+
+function renderProducts() {
+  const grid = $("productGrid");
+
+  if (!grid) return;
+
+  grid.replaceChildren();
+
+  if (!products.length) {
+    grid.textContent = "No products available at the moment.";
     return;
   }
 
-  products = (data || []).map((p) => ({
-    ...p,
-    price: Number(p.price),
-    id: p.id
-  }));
+  const search = $("searchInput")?.value.toLowerCase().trim() || "";
+  const category = $("categoryFilter")?.value || "All";
 
-  renderProducts();
-}
-function renderProducts() {
-  const grid = $("productGrid");
-  if (!grid) return;
-
-  const query = ($("searchInput")?.value || "").trim().toLowerCase();
-
-  const filtered = products.filter((p) => {
-    const matchesCategory =
-      activeCategory === "All" || p.category === activeCategory;
+  const filtered = products.filter((product) => {
     const matchesSearch =
-      `${p.name} ${p.category} ${p.description || ""}`
-        .toLowerCase()
-        .includes(query);
+      (product.name || "").toLowerCase().includes(search) ||
+      (product.description || "").toLowerCase().includes(search);
 
-    return matchesCategory && matchesSearch;
+    const matchesCategory =
+      category === "All" || product.category === category;
+
+    return matchesSearch && matchesCategory;
   });
 
   if (!filtered.length) {
-    grid.innerHTML = "<p>No matching products found. Try another search.</p>";
+    grid.textContent = "No matching products found.";
     return;
   }
-
-  grid.replaceChildren();
 
   filtered.forEach((product) => {
     const card = document.createElement("article");
     card.className = "product-card";
 
-    const category = document.createElement("p");
-    category.className = "eyebrow";
-    category.textContent = product.category;
+    if (product.image_url) {
+      const image = document.createElement("img");
+      image.src = product.image_url;
+      image.alt = product.name || "Samax product";
+      image.loading = "lazy";
+      card.appendChild(image);
+    }
 
-    const title = document.createElement("h3");
-    title.textContent = product.name;
+    const name = document.createElement("h3");
+    name.textContent = product.name || "Unnamed product";
 
     const description = document.createElement("p");
     description.textContent = product.description || "";
 
     const price = document.createElement("strong");
-    price.textContent = money(Number(product.price));
+    price.textContent = money(product.price);
 
     const addButton = document.createElement("button");
-    addButton.className = "button gold-button";
     addButton.type = "button";
-    addButton.textContent = "Add to cart";
-    addButton.addEventListener("click", () => addToCart(product.id));
+    addButton.textContent = "Add to Cart";
+    addButton.disabled = Number(product.stock_quantity) <= 0;
 
-    card.append(category, title, description, price, addButton);
+    if (addButton.disabled) {
+      addButton.textContent = "Out of Stock";
+    }
+
+    addButton.addEventListener("click", () => {
+      addToCart(product.id);
+    });
+
+    card.append(name, description, price, addButton);
     grid.appendChild(card);
   });
 }
 
+// 5. SHOPPING CART
+
 function addToCart(productId) {
-  const product = products.find((p) => p.id === productId);
+  const product = products.find(
+    (item) => String(item.id) === String(productId)
+  );
+
   if (!product) return;
 
-  const item = cart.find((p) => p.id === productId);
-  if (item) {
-    item.quantity += 1;
+  const existing = cart.find(
+    (item) => String(item.id) === String(productId)
+  );
+
+  const stock = Number(product.stock_quantity);
+
+  if (existing) {
+    if (existing.quantity >= stock) {
+      alert("Sorry, there is no more stock available.");
+      return;
+    }
+
+    existing.quantity++;
   } else {
-    cart.push({ ...product, quantity: 1 });
+    if (stock <= 0) {
+      alert("This product is out of stock.");
+      return;
+    }
+
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      quantity: 1
+    });
   }
 
   renderCart();
 }
 
-function renderCart() {
-  const itemsContainer = $("cartItems");
-  if (!itemsContainer) return;
+function changeQuantity(productId, change) {
+  const item = cart.find(
+    (product) => String(product.id) === String(productId)
+  );
 
-  itemsContainer.replaceChildren();
+  if (!item) return;
+
+  const originalProduct = products.find(
+    (product) => String(product.id) === String(productId)
+  );
+
+  if (!originalProduct) return;
+
+  const newQuantity = item.quantity + change;
+
+  if (newQuantity <= 0) {
+    cart = cart.filter(
+      (product) => String(product.id) !== String(productId)
+    );
+  } else if (newQuantity <= Number(originalProduct.stock_quantity)) {
+    item.quantity = newQuantity;
+  } else {
+    alert("You have reached the available stock.");
+  }
+
+  renderCart();
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(
+    (item) => String(item.id) !== String(productId)
+  );
+
+  renderCart();
+}
+
+// 6. DISPLAY CART
+
+function renderCart() {
+  const container = $("cartItems");
+
+  const count = cart.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  const subtotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  if ($("cartCount")) {
+    $("cartCount").textContent = count;
+  }
+
+  if ($("cartTotal")) {
+    $("cartTotal").textContent = money(subtotal);
+  }
+
+  if ($("cartSubtotal")) {
+    $("cartSubtotal").textContent = money(subtotal);
+  }
+
+  if (!container) return;
+
+  container.replaceChildren();
+
+  if (!cart.length) {
+    container.textContent = "Your shopping cart is empty.";
+    return;
+  }
 
   cart.forEach((item) => {
     const row = document.createElement("div");
     row.className = "cart-item";
 
-    const details = document.createElement("div");
-    const name = document.createElement("strong");
-    name.textContent = item.name;
+    const title = document.createElement("strong");
+    title.textContent = item.name;
 
-    const info = document.createElement("p");
-    info.textContent = `${item.quantity} × ${money(Number(item.price))}`;
+    const price = document.createElement("p");
+    price.textContent = money(item.price * item.quantity);
 
-    details.append(name, info);
+    const decrease = document.createElement("button");
+    decrease.type = "button";
+    decrease.textContent = "−";
+    decrease.addEventListener("click", () => {
+      changeQuantity(item.id, -1);
+    });
+
+    const quantity = document.createElement("span");
+    quantity.textContent = item.quantity;
+
+    const increase = document.createElement("button");
+    increase.type = "button";
+    increase.textContent = "+";
+    increase.addEventListener("click", () => {
+      changeQuantity(item.id, 1);
+    });
 
     const remove = document.createElement("button");
     remove.type = "button";
     remove.textContent = "Remove";
-    remove.setAttribute("aria-label", `Remove ${item.name}`);
     remove.addEventListener("click", () => {
-      cart = cart.filter((p) => p.id !== item.id);
-      renderCart();
+      removeFromCart(item.id);
     });
 
-    row.append(details, remove);
-    itemsContainer.appendChild(row);
+    row.append(title, price, decrease, quantity, increase, remove);
+    container.appendChild(row);
   });
-
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
-    0
-  );
-
-  if ($("cartCount")) $("cartCount").textContent = String(count);
-  if ($("cartTotal")) $("cartTotal").textContent = money(subtotal);
 }
 
-function openCart() {
-  $("cartDrawer")?.classList.add("open");
-  $("cartDrawer")?.setAttribute("aria-hidden", "false");
-  if ($("drawerBackdrop")) $("drawerBackdrop").hidden = false;
-}
+// 7. DELIVERY AREA
 
-function closeCart() {
-  $("cartDrawer")?.classList.remove("open");
-  $("cartDrawer")?.setAttribute("aria-hidden", "true");
-  if ($("drawerBackdrop")) $("drawerBackdrop").hidden = true;
-}
-
-document.querySelectorAll("#filters [data-category]").forEach((button) => {
-  button.addEventListener("click", () => {
-    activeCategory = button.dataset.category || "All";
-
-    document.querySelectorAll("#filters [data-category]").forEach((b) => {
-      b.classList.toggle("active", b === button);
-    });
-
-    renderProducts();
-  });
-});
-
-$("searchInput")?.addEventListener("input", renderProducts);
-$("cartOpen")?.addEventListener("click", openCart);
-$("cartClose")?.addEventListener("click", closeCart);
-$("drawerBackdrop")?.addEventListener("click", closeCart);
-
-$("fulfilment")?.addEventListener("change", (event) => {
-  const isDelivery = event.target.value === "Delivery";
+function updateDeliveryFields() {
+  const fulfilment = $("fulfilment");
   const area = $("deliveryArea");
   const label = $("areaLabel");
+
+  if (!fulfilment) return;
+
+  const isDelivery = fulfilment.value === "Delivery";
 
   if (area) {
     area.required = isDelivery;
     area.disabled = !isDelivery;
-    if (!isDelivery) area.value = "";
-  }
-  if (label) label.hidden = !isDelivery;
-});
 
-$("checkoutForm")?.addEventListener("submit", async (event) => {
+    if (!isDelivery) {
+      area.value = "";
+    }
+  }
+
+  if (label) {
+    label.hidden = !isDelivery;
+  }
+}
+
+// 8. PLACE ORDER DIRECTLY INTO SUPABASE
+
+async function placeOrder(event) {
   event.preventDefault();
 
   if (!cart.length) {
-    alert("Your cart is empty.");
+    alert("Your cart is empty. Please add products first.");
     return;
   }
 
-  const name = $("customerName").value.trim();
-  const phone = $("customerPhone").value.trim();
-  const fulfilment = $("fulfilment").value;
+  const name = $("customerName")?.value.trim() || "";
+  const phone = $("customerPhone")?.value.trim() || "";
+  const fulfilment = $("fulfilment")?.value || "";
   const address = $("deliveryArea")?.value.trim() || "";
-  const payment = $("paymentMethod").value;
+  const payment = $("paymentMethod")?.value || "";
 
   if (!name || !phone) {
     alert("Please enter your name and phone number.");
+    return;
+  }
+
+  if (!fulfilment || !payment) {
+    alert("Please select delivery and payment options.");
     return;
   }
 
@@ -228,36 +329,89 @@ $("checkoutForm")?.addEventListener("submit", async (event) => {
     return;
   }
 
-  const items = cart.map(item => ({
-    product_id: String(item.id),
-    quantity: Number(item.quantity)
-  }));
+  const submitButton = $("checkoutForm")?.querySelector(
+    'button[type="submit"], input[type="submit"]'
+  );
+
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Placing order...";
+  }
 
   try {
-    const { data, error } = await supabase.rpc("place_guest_order", {
-      p_customer_name: name,
-      p_customer_phone: phone,
-      p_delivery_method: fulfilment,
-      p_delivery_address: address,
-      p_payment_method: payment,
-      p_items: items
-    });
+    const items = cart.map((item) => ({
+      product_id: String(item.id),
+      quantity: Number(item.quantity)
+    }));
+
+    const { data, error } = await supabaseClient.rpc(
+      "place_guest_order",
+      {
+        p_customer_name: name,
+        p_customer_phone: phone,
+        p_delivery_method: fulfilment,
+        p_delivery_address: address,
+        p_payment_method: payment,
+        p_items: items
+      }
+    );
 
     if (error) throw error;
 
-    alert("Your order has been placed successfully! Order number: " + data);
+    alert(
+      "Your order has been placed successfully!\nOrder number: " + data
+    );
 
     cart = [];
+
     renderCart();
-    $("checkoutForm").reset();
+
+    $("checkoutForm")?.reset();
+
+    updateDeliveryFields();
 
   } catch (error) {
-    console.error(error);
-    alert("Order could not be placed: " + error.message);
+    console.error("Order submission error:", error);
+
+    alert(
+      "We could not place your order. Please try again.\n" +
+      error.message
+    );
+
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Place Order";
+    }
   }
+}
+
+// 9. EVENT LISTENERS
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  $("searchInput")?.addEventListener("input", renderProducts);
+
+  $("categoryFilter")?.addEventListener("change", renderProducts);
+
+  $("fulfilment")?.addEventListener(
+    "change",
+    updateDeliveryFields
+  );
+
+  $("checkoutForm")?.addEventListener(
+    "submit",
+    placeOrder
+  );
+
+  if ($("year")) {
+    $("year").textContent = new Date().getFullYear();
+  }
+
+  updateDeliveryFields();
+
+  renderCart();
+
+  loadProductsFromDatabase();
+
 });
-
-if ($("year")) $("year").textContent = String(new Date().getFullYear());
-
-loadProductsFromDatabase();
-renderCart();
