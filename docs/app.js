@@ -403,6 +403,9 @@ function closeCart() {
 
 $("cartOpen")?.addEventListener("click", openCart);
 $("cartClose")?.addEventListener("click", closeCart);
+
+$("cartOpen")?.addEventListener("click", openCart);
+$("cartClose")?.addEventListener("click", closeCart);
 $("cartOverlay")?.addEventListener("click", closeCart);
 // 9. EVENT LISTENERS
 
