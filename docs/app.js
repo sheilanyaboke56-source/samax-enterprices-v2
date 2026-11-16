@@ -385,7 +385,25 @@ async function placeOrder(event) {
     }
   }
 }
+unction openCart() {
+  const drawer = $("cartDrawer");
+  if (!drawer) return;
 
+  drawer.classList.add("open");
+  drawer.setAttribute("aria-hidden", "false");
+}
+
+function closeCart() {
+  const drawer = $("cartDrawer");
+  if (!drawer) return;
+
+  drawer.classList.remove("open");
+  drawer.setAttribute("aria-hidden", "true");
+}
+
+$("cartOpen")?.addEventListener("click", openCart);
+$("cartClose")?.addEventListener("click", closeCart);
+$("cartOverlay")?.addEventListener("click", closeCart);
 // 9. EVENT LISTENERS
 
 document.addEventListener("DOMContentLoaded", () => {
