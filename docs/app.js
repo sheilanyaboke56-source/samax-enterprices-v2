@@ -385,7 +385,7 @@ async function placeOrder(event) {
     }
   }
 }
-unction openCart() {
+function openCart() {
   const drawer = $("cartDrawer");
   if (!drawer) return;
 
