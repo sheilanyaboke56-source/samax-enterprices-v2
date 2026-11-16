@@ -236,7 +236,7 @@ function renderCart() {
 
   cart.forEach((item) => {
     const row = document.createElement("div");
-    row.className = "cart-item";
+    row.className = "cart-row";
 
     const title = document.createElement("strong");
     title.textContent = item.name;
