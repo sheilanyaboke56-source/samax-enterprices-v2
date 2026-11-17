@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#123b2b">
+<title>Samax Enterprises | Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+ --forest:#102f23;--forest-2:#174a35;--forest-3:#235b42;--champagne:#c9a65a;
+ --champagne-soft:#f3ead4;--ivory:#faf9f5;--paper:#fff;--ink:#1c2821;
+ --muted:#7c877f;--line:#e9e8e0;--red:#a94d43;--shadow:0 16px 44px rgba(23,48,34,.055)
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ivory);color:var(--ink);font-family:"DM Sans",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+.sidebar{position:fixed;inset:0 auto 0 0;width:264px;background:linear-gradient(165deg,#102f23 0%,#0b241b 100%);color:#fff;padding:30px 20px;display:flex;flex-direction:column;z-index:10}
+.brand{padding:4px 12px 29px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand strong{font-family:"Playfair Display",Georgia,serif;font-size:20px;font-weight:700;letter-spacing:1.1px}
+.brand strong span{color:#d8bd7c}
+.brand small{display:block;color:#aab9ae;margin-top:9px;font-size:9px;letter-spacing:2.3px;font-weight:700}
+.nav-label{color:#82978a;text-transform:uppercase;letter-spacing:1.8px;font-size:9px;font-weight:800;padding:29px 13px 11px}
+.nav button{display:flex;align-items:center;gap:13px;width:100%;border:1px solid transparent;background:transparent;color:#c8d4cb;text-align:left;padding:13px 14px;border-radius:9px;margin:3px 0;font-size:12px;font-weight:600;transition:.2s}
+.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button.active{background:rgba(201,166,90,.13);border-color:rgba(201,166,90,.23);color:#fff}
+.nav .ico{width:20px;text-align:center;color:#d1b775;font-size:16px}
+.sidebar-bottom{margin-top:auto;padding:17px 12px 2px;border-top:1px solid rgba(255,255,255,.12);color:#91a397;font-size:10px;line-height:1.8}
+.main{margin-left:264px;min-height:100vh}
+.topbar{height:78px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 42px;position:sticky;top:0;z-index:8}
+.top-title{font-size:11px;color:#9aa39b;letter-spacing:.3px}.top-title strong{color:#33443a;font-size:12px;font-weight:700}
+.profile{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;color:#435148}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--forest);color:#e5d3a4;display:grid;place-items:center;font-family:"Playfair Display",Georgia,serif;font-size:15px;border:2px solid #e9dfc5}
+.content{max-width:1500px;margin:0 auto;padding:38px 42px 58px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:29px}
+.eyebrow{color:#a18442;text-transform:uppercase;letter-spacing:2.1px;font-size:9px;font-weight:800}
+.page-head h1{font:700 34px "Playfair Display",Georgia,serif;margin:8px 0 7px;letter-spacing:-.5px;color:#1c3025}
+.page-head p{margin:0;color:var(--muted);font-size:12px}
+.btn{border:1px solid transparent;border-radius:7px;padding:11px 16px;font-size:10px;letter-spacing:.25px;font-weight:800;transition:all .18s}
+.btn-primary{background:var(--forest);color:#fff;box-shadow:0 5px 14px rgba(16,47,35,.12)}
+.btn-primary:hover{background:#1c4b36;transform:translateY(-1px)}
+.btn-gold{background:var(--champagne);color:#17291e}
+.btn-gold:hover{background:#d7b96f}
+.btn-light{background:#fff;color:var(--forest);border-color:var(--line)}
+.btn-light:hover{border-color:#c8b47d;background:#fcfbf7}
+.btn-danger{background:#fff8f6;color:var(--red);border-color:#f0e1dc}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:23px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:20px 21px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;right:-24px;bottom:-37px;width:105px;height:105px;border:1px solid #e8dfca;border-radius:50%;opacity:.55}
+.stat-top{display:flex;align-items:center;justify-content:space-between;color:#77847b;font-size:10px;font-weight:700;letter-spacing:.25px}
+.stat-icon{width:33px;height:33px;display:grid;place-items:center;background:#f7f3e9;border:1px solid #eee6d4;border-radius:9px;color:#a18442;font-size:15px}
+.stat strong{display:block;font:700 30px "Playfair Display",Georgia,serif;margin-top:17px;letter-spacing:-.5px;color:#183b2b}
+.stat small{display:block;color:#9aa39b;font-size:9px;margin-top:5px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:21px;overflow:hidden}
+.panel-head{padding:20px 23px;border-bottom:1px solid #efeee8;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.panel-head h2{font:700 17px "Playfair Display",Georgia,serif;margin:0;color:#20372a}
+.panel-head p{font-size:10px;color:#89938b;margin:5px 0 0}
+.panel-body{padding:23px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.field.full{grid-column:1/-1}
+.field label{display:block;font-size:10px;font-weight:800;margin-bottom:8px;color:#4a594f;letter-spacing:.2px}
+.field input,.field select,.field textarea,.search{width:100%;border:1px solid #e4e6df;background:#fdfdfb;border-radius:7px;padding:12px 13px;outline:none;font-size:11px;color:var(--ink);transition:.18s}
+.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:#9caa9e;box-shadow:0 0 0 3px rgba(23,74,53,.07);background:#fff}
+.field textarea{resize:vertical}
+.checkline{display:flex;align-items:center;gap:9px;font-size:10px;font-weight:700;color:#526057}
+.checkline input{width:auto;accent-color:var(--forest)}
+.form-actions{display:flex;align-items:center;gap:15px;margin-top:18px;flex-wrap:wrap}
+.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.search{max-width:250px;background:#fff}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th{text-align:left;background:#fafaf7;color:#8b958d;font-size:9px;text-transform:uppercase;letter-spacing:1.05px;padding:14px 18px;font-weight:800}
+td{padding:15px 18px;border-top:1px solid #f0f0eb;font-size:11px;vertical-align:middle;color:#435148}
+tbody tr:hover{background:#fdfdf9}
+.product-name{font-weight:800;color:#263b2e}
+.subtext{display:block;color:#a0a9a1;font-size:9px;margin-top:4px}
+.pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:4px;background:#edf3ee;color:#315c43;font-size:9px;font-weight:800;text-transform:capitalize;letter-spacing:.2px}
+.pill.pending{background:#f8f0dc;color:#987528}.pill.processing{background:#edf2fa;color:#496b9a}.pill.shipped{background:#f0ecf7;color:#705c94}.pill.delivered,.pill.paid{background:#eaf4ed;color:#34744c}.pill.cancelled,.pill.failed{background:#f9eeeb;color:#a94d43}
+.table-action{display:flex;gap:6px}
+.table-action button{padding:7px 10px;font-size:9px}
+.notice{padding:11px 13px;border-radius:6px;font-size:11px;margin-top:13px;background:#edf4ee;color:var(--forest)}
+.notice.error{background:#fbefec;color:var(--red)}
+.empty{padding:32px;text-align:center;color:#9aa39b;font-size:11px}
+.section{display:none}.section.active{display:block}
+#login{max-width:430px;margin:9vh auto;padding:38px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 60px rgba(16,47,35,.09)}
+#login h1{font:700 32px "Playfair Display",Georgia,serif;margin:8px 0;color:#193b2b}
+#login p{font-size:11px;color:var(--muted);margin:0 0 25px}
+#login .field{margin:15px 0}
+#login .btn{width:100%;margin-top:10px;padding:13px}
+#message{font-size:11px;color:var(--red);margin-top:14px}
+footer{text-align:center;color:#a7afa8;font-size:9px;letter-spacing:.4px;padding:17px}
+@media(max-width:1050px){.sidebar{width:220px}.main{margin-left:220px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:30px 25px}}
+@media(max-width:700px){
+ .sidebar{width:100%;height:auto;inset:0 0 auto;position:sticky;padding:13px 14px;background:#102f23}
+ .brand{padding:0 5px 11px;border:0}.brand strong{font-size:17px}.brand small{display:none}
+ .nav-label,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto;gap:4px}
+ .nav button{white-space:nowrap;width:auto;padding:9px 10px;font-size:10px;margin:0}
+ .nav .ico{width:auto}.main{margin:0}.topbar{height:57px;padding:0 15px}
+ .content{padding:23px 14px}.page-head{align-items:flex-start;flex-direction:column;margin-bottom:21px}
+ .page-head h1{font-size:29px}.stats{gap:9px}.stat{padding:14px}.stat strong{font-size:24px}
+ .panel-head,.panel-body{padding:15px}.panel-head{align-items:flex-start;flex-direction:column}
+ .form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+ .search{max-width:none;flex:1;min-width:145px}.profile{font-size:10px}.avatar{width:29px;height:29px}
+ #login{margin:7vh 15px;padding:27px}
+}
+
+</style>
+</head>
+<body>
+<div id="login" style="display:none">
+  <div class="eyebrow">Samax Enterprises</div>
+  <h1>Welcome back.</h1>
+  <p>Sign in to manage your shop, products and customer orders.</p>
+  <form id="loginForm">
+    <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary" type="submit">Sign in to dashboard</button>
+  </form>
+  <div id="message" role="status"></div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <aside class="sidebar">
+    <div class="brand"><strong>SAMAX <span>ENTERPRISES</span></strong><small>PRIVATE RETAIL MANAGEMENT</small></div>
+    <div class="nav-label">Workspace</div>
+    <nav class="nav">
+      <button class="active" data-section="overview"><span class="ico">⌂</span>Overview</button>
+      <button data-section="products"><span class="ico">▦</span>Products</button>
+      <button data-section="orders"><span class="ico">▤</span>Orders</button>
+    </nav>
+    <div class="sidebar-bottom">Private administrator portal<br>Thoughtfully managed. Professionally delivered.</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="top-title">Workspace / <strong id="crumb">Overview</strong></div>
+      <div class="profile"><div class="avatar">S</div><span id="adminEmail">Administrator</span><button class="btn btn-light" id="logout">Sign out</button></div>
+    </div>
+
+    <main class="content">
+      <section class="section active" id="overviewSection">
+        <div class="page-head"><div><div class="eyebrow">Shop at a glance</div><h1>Your store, in focus.</h1><p>A clear view of your catalogue, orders and daily operations.</p></div><button class="btn btn-primary" id="goAddProduct">＋ Add a product</button></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-top">Total products <span class="stat-icon">▦</span></div><strong id="productCount">0</strong><small>Products in your catalogue</small></div>
+          <div class="stat"><div class="stat-top">Total orders <span class="stat-icon">▤</span></div><strong id="orderCount">0</strong><small>Customer orders received</small></div>
+          <div class="stat"><div class="stat-top">Pending orders <span class="stat-icon">◷</span></div><strong id="pendingCount">0</strong><small>Orders awaiting action</small></div>
+          <div class="stat"><div class="stat-top">Low stock items <span class="stat-icon">!</span></div><strong id="lowStockCount">0</strong><small>Products with 5 or fewer units</small></div>
+        </div>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Recent orders</h2><p>Keep an eye on the latest customer purchases.</p></div><button class="btn btn-light" data-go="orders">View all orders →</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Total</th><th>Order status</th></tr></thead><tbody id="recentOrders"><tr><td colspan="4" class="empty">Loading orders…</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="section" id="productsSection">
+        <div class="page-head"><div><div class="eyebrow">Catalogue management</div><h1>Your products</h1><p>Add products and keep prices and stock up to date.</p></div></div>
+        <section class="panel" id="productEditor">
+          <div class="panel-head"><div><h2>Add a product</h2><p>Products saved here appear in your customer shop.</p></div></div>
+          <div class="panel-body">
+            <form id="productForm">
+              <div class="form-grid">
+                <div class="field"><label for="productName">Product name</label><input id="productName" required></div>
+                <div class="field"><label for="productCategory">Category</label><select id="productCategory" required>
+                  <option value="">Choose category</option><option>Food & groceries</option><option>Household essentials</option><option>Kitchenware</option><option>Cleaning supplies</option><option>Personal care & toiletries</option><option>Stationery & school supplies</option><option>Electronics & accessories</option><option>Clothing & accessories</option><option>Baby & kids' products</option><option>Hardware & tools</option><option>Beverages</option><option>Other products</option>
+                </select></div>
+                <div class="field"><label for="productPrice">Price (KES)</label><input id="productPrice" type="number" min="0" step="0.01" required></div>
+                <div class="field"><label for="productStock">Stock quantity</label><input id="productStock" type="number" min="0" step="1" required></div>
+                <div class="field full"><label for="productImage">Product image URL <span style="font-weight:500;color:#89938c">(optional)</span></label><input id="productImage" type="url" placeholder="https://..."></div>
+                <div class="field full"><label for="productDescription">Description</label><textarea id="productDescription" rows="3" placeholder="A short description of the product"></textarea></div>
+              </div>
+              <div class="form-actions"><label class="checkline"><input id="productPopular" type="checkbox"> Feature as a popular product</label><button class="btn btn-gold" type="submit">Save product</button></div>
+              <p id="productMessage" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Product catalogue</h2><p>Review and update your listed products.</p></div><div class="toolbar"><input class="search" id="productSearch" placeholder="Search products…"><button class="btn btn-light" id="refreshProducts">Refresh</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="productsTable"><tr><td colspan="4" class="empty">Loading products…</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="section" id="ordersSection">
+        <div class="page-head"><div><div class="eyebrow">Order fulfilment</div><h1>Customer orders</h1><p>Track each order as it moves from pending to delivered.</p></div></div>
+        <section class="panel">
+          <div class="panel-head"><div><h2>All orders</h2><p>Update order status when you process, dispatch or deliver an order.</p></div><div class="toolbar"><input class="search" id="orderSearch" placeholder="Search customer or phone…"><button class="btn btn-light" id="refreshOrders">Refresh</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Fulfilment</th><th>Total</th><th>Payment</th><th>Order status</th></tr></thead><tbody id="ordersTable"><tr><td colspan="6" class="empty">Loading orders…</td></tr></tbody></table></div>
+          <div class="panel-body"><p id="orderMessage" aria-live="polite"></p></div>
+        </section>
+      </section>
+    </main>
+    <footer>© Samax Enterprises · Private administration</footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://htqzicbmlwwlycvtcfvy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_m9bc6NYfuinVNfOJ6lq3-w_C_V9Fgi4";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let allProducts = [];
+let allOrders = [];
+
+function showNotice(element, message, isError=false) {
+  element.textContent = message;
+  element.className = message ? "notice" + (isError ? " error" : "") : "";
+}
+function money(value) {
+  return "KES " + Number(value || 0).toLocaleString("en-KE", {maximumFractionDigits:2});
+}
+function safeText(value) { return String(value ?? ""); }
+
+async function checkAdmin() {
+  const { data: { user }, error: userError } = await db.auth.getUser();
+  if (userError || !user) {
+    $("login").style.display = "block"; $("app").style.display = "none"; return;
+  }
+  const { data, error } = await db.from("user_roles").select("role").eq("user_id", user.id).maybeSingle();
+  if (error || !data || data.role !== "admin") {
+    await db.auth.signOut();
+    $("login").style.display = "block"; $("app").style.display = "none";
+    $("message").textContent = "This account does not have admin permission.";
+    return;
+  }
+  $("login").style.display = "none"; $("app").style.display = "block";
+  $("adminEmail").textContent = user.email || "Administrator";
+  await Promise.all([loadProducts(), loadOrders()]);
+}
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault(); $("message").textContent = "Signing in…";
+  const { error } = await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  if (error) { $("message").textContent = error.message; return; }
+  $("message").textContent = ""; await checkAdmin();
+});
+$("logout").addEventListener("click", async () => { await db.auth.signOut(); await checkAdmin(); });
+
+function navigate(section) {
+  document.querySelectorAll(".section").forEach(node => node.classList.remove("active"));
+  $(section + "Section").classList.add("active");
+  document.querySelectorAll(".nav button").forEach(button => button.classList.toggle("active", button.dataset.section === section));
+  $("crumb").textContent = section.charAt(0).toUpperCase() + section.slice(1);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav button").forEach(button => button.addEventListener("click", () => navigate(button.dataset.section)));
+document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.go)));
+$("goAddProduct").addEventListener("click", () => { navigate("products"); $("productName").focus(); });
+$("refreshProducts").addEventListener("click", loadProducts);
+$("refreshOrders").addEventListener("click", loadOrders);
+$("productSearch").addEventListener("input", renderProducts);
+$("orderSearch").addEventListener("input", renderOrders);
+
+$("productForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = $("productMessage"); showNotice(message, "Saving product…");
+  const product = {
+    name:$("productName").value.trim(), category:$("productCategory").value,
+    price:Number($("productPrice").value), stock_quantity:Number($("productStock").value),
+    image_url:$("productImage").value.trim() || null,
+    description:$("productDescription").value.trim(),
+    is_active:true, is_popular:$("productPopular").checked
+  };
+  const { error } = await db.from("products").insert(product);
+  if (error) { showNotice(message, "Could not add product: " + error.message, true); return; }
+  $("productForm").reset(); showNotice(message, "Product added successfully.");
+  await loadProducts();
+});
+
+async function loadProducts() {
+  const table = $("productsTable"); table.innerHTML = '<tr><td colspan="4" class="empty">Loading products…</td></tr>';
+  const { data, error } = await db.from("products").select("id,name,price,stock_quantity").order("name");
+  if (error) { table.innerHTML = ""; showNotice($("productMessage"), "Could not load products: " + error.message, true); return; }
+  allProducts = data || [];
+  $("productCount").textContent = allProducts.length;
+  $("lowStockCount").textContent = allProducts.filter(item => Number(item.stock_quantity) <= 5).length;
+  renderProducts();
+}
+function renderProducts() {
+  const term = $("productSearch").value.trim().toLowerCase();
+  const rows = allProducts.filter(item => safeText(item.name).toLowerCase().includes(term));
+  const table = $("productsTable"); table.innerHTML = "";
+  if (!rows.length) { table.innerHTML = '<tr><td colspan="4" class="empty">No matching products found.</td></tr>'; return; }
+  rows.forEach(product => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td"); name.innerHTML = '<span class="product-name"></span><span class="subtext">Samax catalogue item</span>'; name.querySelector(".product-name").textContent = product.name || "Unnamed product";
+    const price = document.createElement("td"); price.textContent = money(product.price);
+    const stock = document.createElement("td"); stock.innerHTML = '<span class="pill"></span>'; stock.querySelector(".pill").textContent = product.stock_quantity + " in stock"; if (Number(product.stock_quantity) <= 5) stock.querySelector(".pill").classList.add("pending");
+    const actions = document.createElement("td"); actions.className = "table-action";
+    const edit = document.createElement("button"); edit.className = "btn btn-light"; edit.textContent = "Edit"; edit.addEventListener("click", () => editProduct(product));
+    const remove = document.createElement("button"); remove.className = "btn btn-danger"; remove.textContent = "Delete"; remove.addEventListener("click", () => deleteProduct(product.id));
+    actions.append(edit, remove); tr.append(name, price, stock, actions); table.appendChild(tr);
+  });
+}
+async function editProduct(product) {
+  const newPrice = prompt("Enter the new price (KES):", product.price); if (newPrice === null) return;
+  const price = Number(newPrice); if (!Number.isFinite(price) || price < 0) { alert("Please enter a valid price."); return; }
+  const newStock = prompt("Enter the new stock quantity:", product.stock_quantity); if (newStock === null) return;
+  const stock = Number(newStock); if (!Number.isInteger(stock) || stock < 0) { alert("Please enter a valid whole-number stock quantity."); return; }
+  const { error } = await db.from("products").update({price,stock_quantity:stock}).eq("id",product.id);
+  if (error) alert("Update failed: " + error.message); else await loadProducts();
+}
+async function deleteProduct(id) {
+  if (!confirm("Delete this product from the catalogue?")) return;
+  const { error } = await db.from("products").delete().eq("id",id);
+  if (error) alert("Delete failed: " + error.message); else await loadProducts();
+}
+
+async function loadOrders() {
+  const table = $("ordersTable"); table.innerHTML = '<tr><td colspan="6" class="empty">Loading orders…</td></tr>';
+  const { data, error } = await db.from("orders")
+    .select("id,customer_name,customer_phone,total_amount,order_status,payment_status,payment_method,delivery_method,created_at")
+    .order("created_at",{ascending:false});
+  if (error) { $("orderMessage").textContent = "Could not load orders: " + error.message; table.innerHTML = ""; return; }
+  allOrders = data || [];
+  $("orderCount").textContent = allOrders.length;
+  $("pendingCount").textContent = allOrders.filter(order => order.order_status === "pending").length;
+  renderOrders();
+  renderRecentOrders();
+}
+function statusSelect(order) {
+  const select = document.createElement("select");
+  select.className = "search";
+  select.style.minWidth = "125px"; select.style.padding = "7px";
+  ["pending","processing","shipped","delivered","cancelled"].forEach(value => {
+    const option = document.createElement("option"); option.value = value; option.textContent = value; select.appendChild(option);
+  });
+  select.value = order.order_status || "pending";
+  select.addEventListener("change", async () => {
+    const previous = order.order_status; select.disabled = true;
+    const { error } = await db.from("orders").update({order_status:select.value}).eq("id",order.id);
+    if (error) { alert("Could not update order: " + error.message); select.value = previous || "pending"; }
+    else { order.order_status = select.value; $("pendingCount").textContent = allOrders.filter(item => item.order_status === "pending").length; renderRecentOrders(); }
+    select.disabled = false;
+  });
+  return select;
+}
+function renderOrders() {
+  const term = $("orderSearch").value.trim().toLowerCase();
+  const rows = allOrders.filter(order => (safeText(order.customer_name)+" "+safeText(order.customer_phone)).toLowerCase().includes(term));
+  const table = $("ordersTable"); table.innerHTML = "";
+  if (!rows.length) { table.innerHTML = '<tr><td colspan="6" class="empty">No matching orders found.</td></tr>'; return; }
+  rows.forEach(order => {
+    const tr = document.createElement("tr");
+    const customer = document.createElement("td"); customer.innerHTML = '<span class="product-name"></span><span class="subtext"></span>'; customer.querySelector(".product-name").textContent = order.customer_name || "Customer"; customer.querySelector(".subtext").textContent = order.created_at ? new Date(order.created_at).toLocaleDateString("en-KE") : "";
+    const phone = document.createElement("td"); phone.textContent = order.customer_phone || "—";
+    const fulfilment = document.createElement("td"); fulfilment.textContent = order.delivery_method || "—";
+    const total = document.createElement("td"); total.textContent = money(order.total_amount);
+    const payment = document.createElement("td"); const badge = document.createElement("span"); badge.className = "pill " + safeText(order.payment_status).toLowerCase(); badge.textContent = order.payment_status || order.payment_method || "Unspecified"; payment.appendChild(badge);
+    const status = document.createElement("td"); status.appendChild(statusSelect(order));
+    tr.append(customer,phone,fulfilment,total,payment,status); table.appendChild(tr);
+  });
+}
+function renderRecentOrders() {
+  const table = $("recentOrders"); table.innerHTML = "";
+  const rows = allOrders.slice(0,5);
+  if (!rows.length) { table.innerHTML = '<tr><td colspan="4" class="empty">No orders have been received yet.</td></tr>'; return; }
+  rows.forEach(order => {
+    const tr = document.createElement("tr");
+    const customer = document.createElement("td"); customer.textContent = order.customer_name || "Customer";
+    const phone = document.createElement("td"); phone.textContent = order.customer_phone || "—";
+    const total = document.createElement("td"); total.textContent = money(order.total_amount);
+    const status = document.createElement("td"); const pill = document.createElement("span"); pill.className = "pill " + safeText(order.order_status).toLowerCase(); pill.textContent = order.order_status || "pending"; status.appendChild(pill);
+    tr.append(customer,phone,total,status); table.appendChild(tr);
+  });
+}
+checkAdmin();
+</script>
+</body>
+</html>
